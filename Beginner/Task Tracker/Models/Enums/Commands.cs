@@ -8,6 +8,6 @@ namespace Task_Tracker.Models.Enums
 {
     internal enum Commands
     {
-        ADD, DELETE, UPDATE, LIST, MARKDONE, MARKINPROGRESS
+        ADD, DELETE, UPDATE, LIST, MARKDONE, MARKINPROGRESS, QUIT
     }
 }

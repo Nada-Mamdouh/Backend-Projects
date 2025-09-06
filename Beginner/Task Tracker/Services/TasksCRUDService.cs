@@ -10,9 +10,9 @@ namespace Task_Tracker.Services
 {
     internal static class TasksCRUDService
     {
-        public static async Task AddTask(myTask task)
+        public static async Task Upsert(myTask task, int? id = null)
         {
-            await JsonHelper.WriteEntityToFile(task);
+            await JsonHelper.UpsertAsync(task, id);
         }
     }
 }
