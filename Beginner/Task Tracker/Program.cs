@@ -16,7 +16,16 @@ namespace Task_Tracker
                 //Read args - create
                 string appname = AppDomain.CurrentDomain.FriendlyName;
                 Console.WriteLine("Welcome to our to-do list app!");
-                Console.WriteLine("Press Esc to terminate....");
+                Console.WriteLine("Valid commands are as follows: ");
+                Console.WriteLine("add \"new to-do!\"");
+                Console.WriteLine("update {id}");
+                Console.WriteLine("delete {id}");
+                Console.WriteLine("list");
+                Console.WriteLine("list {status filter, ex: done, todo, in-progress}");
+                Console.WriteLine("mark-in-progress {id}");
+                Console.WriteLine("mark-done {id}");
+                Console.WriteLine("close");
+
                 while (true)
                 {
                     Console.Write(appname + '>');
@@ -28,34 +37,49 @@ namespace Task_Tracker
                         break;
                     }
                     // Extract info from input
-                    string desc = UtilityConsoleHandler.ReadDescFromInput(line);
-                    var command = inputs[0];
-                    Enum commandEnum = MappingHelper.MapCommand(command);
-
-                    switch (commandEnum)
+                    try
                     {
-                        case Commands.ADD:
-                            var addParseResponse = UtilityConsoleHandler.ParseAddCommand(desc);
-                            await UtilityCRUD.Create(addParseResponse.DESC);
-                            break;
-                        case Commands.UPDATE:
-                            var updateParseResponse = UtilityConsoleHandler.ParseUpdateCommand(inputs, desc);
-                            await UtilityCRUD.Update(updateParseResponse.DESC, updateParseResponse.Id);
-                            break;
-                        case Commands.LIST:
-                            //[TODO]
-                            break;
-                        case Commands.DELETE:
-                            //[TODO]
-                            break;
-                        case Commands.MARKINPROGRESS:
-                            //[TODO]
-                            break;
-                        case Commands.MARKDONE:
-                            //[TODO]
-                            break;
-                        default:
-                            return;
+                        var command = inputs[0];
+                        Enum commandEnum = MappingHelper.MapCommand(command);
+
+                        switch (commandEnum)
+                        {
+                            case Commands.ADD:
+                                string addtask = UtilityConsoleHandler.ReadDescFromInput(line);
+                                var addParseResponse = UtilityConsoleHandler.ParseAddCommand(addtask);
+                                await UtilityCRUD.Create(addParseResponse.DESC);
+                                break;
+                            case Commands.UPDATE:
+                                string desc = UtilityConsoleHandler.ReadDescFromInput(line);
+                                var updateParseResponse = UtilityConsoleHandler.ParseUpdateCommand(inputs, desc);
+                                await UtilityCRUD.Update(updateParseResponse.DESC, updateParseResponse.Id);
+                                break;
+                            case Commands.LIST:
+                                myTaskStatus? listFilter = UtilityConsoleHandler.ReadListFilter(inputs);
+                                await UtilityCRUD.List(listFilter);
+                                break;
+                            case Commands.DELETE:
+                                var deleteParseResponse = UtilityConsoleHandler.ParseDeleteCommand(inputs);
+                                await UtilityCRUD.Delete(deleteParseResponse.Id);
+                                break;
+                            case Commands.MARKINPROGRESS:
+                                var id = UtilityConsoleHandler.ReadIdFromCommand(inputs);
+                                await UtilityCRUD.UpdateStatus(id, myTaskStatus.INPROGRESS);
+                                break;
+                            case Commands.MARKDONE:
+                                var todoId = UtilityConsoleHandler.ReadIdFromCommand(inputs);
+                                await UtilityCRUD.UpdateStatus(todoId, myTaskStatus.DONE);
+                                break;
+                            case Commands.QUIT:
+                                return;
+                            default:
+                                return;
+                        }
+                    
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Exception ocurred when trying to parse inputs, please enter a valid command format!");
                     }
                 }
                 
@@ -63,12 +87,6 @@ namespace Task_Tracker
             {
                 Console.WriteLine(ex.ToString());
             }
-
-            
-            ///[TODO] 1- Add Parsing function maybe in utility crud
-            ///2- Enable parsing commands on add, delete and update correctly 
-            ///3- colorize commands
-            ///4- accept todos with spaces 
             
         }
     }
