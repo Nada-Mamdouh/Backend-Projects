@@ -6,9 +6,13 @@ using systemTask = System.Threading.Tasks.Task;
 using System.Text.Json;
 using System.Buffers;
 using myTask = Task_Tracker.Models.Task;
+using enums = Task_Tracker.Models.Enums;
 using System.Reflection;
 using System.IO;
 using Task_Tracker.Models;
+using System.ComponentModel;
+using System.Threading.Tasks;
+using Task_Tracker.Models.Enums;
 
 namespace Task_Tracker.Helpers
 {
@@ -28,7 +32,7 @@ namespace Task_Tracker.Helpers
                 if(id == null || id == 0) //Create
                 {
                     int lastId = await GetHighestId();
-                    highestId = lastId + 1;
+                    highestId = ++lastId;
                     myTask newToDo = new()
                     {
                         Id = highestId,
@@ -37,28 +41,109 @@ namespace Task_Tracker.Helpers
                         CreatedAt = DateTime.UtcNow
                     };
                     tasks.Add(newToDo);
+                    Console.WriteLine($"Task added successfully (ID: {highestId})");
                 }
                 else if(id != null && id > 0) //Update
                 {
-                    var tasksList = await ReadFromFileAsync();
-                    var obj = tasksList.FirstOrDefault(o => o.Id == id);
+                    var obj = tasks.FirstOrDefault(o => o.Id == id);
                     if(obj != null)
                     {
                         obj.Description = task.Description;
                         obj.Status = task.Status;
                         obj.UpdatedAt = DateTime.UtcNow;
-                        tasks.Add(obj);
+                        Console.WriteLine($"Task with ID: {obj?.Id} updated successfully!");
                     }
+                    else
+                    {
+                        Console.WriteLine($"No to-do with ID: {id} was found!");
+                    }
+                    
                 }
 
                 // 3- write again to json file
                 await WriteToJsonFileAsync(tasks);
-                Console.WriteLine($"Task added successfully (ID: {highestId})");
+                
             }
             catch(Exception ex)
             {
                 Console.WriteLine($"Exception occurred while writing to file, {ex.Message} ",ex);
             }
+        }
+        public static async systemTask DeleteAsync(int id)
+        {
+            try
+            {
+                var todos = await ReadFromFileAsync();
+                var todoToBeDeleted = todos.FirstOrDefault(t => t.Id == id);
+                if (todoToBeDeleted == null) Console.WriteLine("To do was not found!");
+                else
+                {
+                    todos.Remove(todoToBeDeleted);
+                    await WriteToJsonFileAsync(todos);
+                    Console.WriteLine($"Todo with Id: {todoToBeDeleted.Id} was deleted successfully!");
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($"Exception occurred while writing storing todo, {ex.Message}");
+            }
+        }
+
+        public static async systemTask ListAsync(enums.TaskStatus? filter)
+        {
+            try
+            {
+                var todos = await ReadFromFileAsync();
+                
+                if(todos != null)
+                {
+                    if (filter != null) todos = todos.Where(t => t.Status == filter).ToList();
+                    foreach (var todo in todos)
+                    {
+                        Console.WriteLine($"{todo.Id}\t{MappingHelper.GetKeyName(todo.Status)}\t{todo.Description}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("You have no to-dos, you may add a new one!");
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception occurred while listing todos");
+            }
+        }
+        public static async systemTask UpdateStatusAsync(enums.TaskStatus status, int id)
+        {
+            try
+            {
+                List<myTask> tasks = await ReadFromFileAsync();
+                if (id > 0) //Update
+                {
+                    var obj = tasks.FirstOrDefault(o => o.Id == id);
+                    if (obj != null)
+                    {
+                        obj.Status = status;
+                        obj.UpdatedAt = DateTime.UtcNow;
+                        Console.WriteLine($"Task with ID: {obj?.Id} status was updated successfully!");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"No to-do with ID: {id} was found!");
+                    }
+
+                }
+
+                // 3- write again to json file
+                await WriteToJsonFileAsync(tasks);
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception occurred while updating to-do status, {ex.Message} ", ex);
+            }
+        
         }
         private static async Task<int> GetHighestId()
         { 

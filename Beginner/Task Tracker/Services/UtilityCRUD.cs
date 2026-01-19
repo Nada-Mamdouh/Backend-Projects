@@ -7,6 +7,7 @@ using Task_Tracker.Models.Enums;
 using Task_Tracker.Models;
 using myTask = Task_Tracker.Models.Task;
 using myTaskStatus = Task_Tracker.Models.Enums.TaskStatus;
+using TaskStatus = Task_Tracker.Models.Enums.TaskStatus;
 
 namespace Task_Tracker.Services
 {
@@ -29,6 +30,18 @@ namespace Task_Tracker.Services
                 Id = id
             };
             await TasksCRUDService.Upsert(tobeupdated, tobeupdated.Id);
+        }
+        public static async systemTask Delete(int id)
+        {
+            await TasksCRUDService.Delete(id);
+        }
+        public static async systemTask List(myTaskStatus? filter)
+        {
+            await TasksCRUDService.ListAsync(filter);
+        }
+        public static async systemTask UpdateStatus(int id,  TaskStatus status)
+        {
+            await TasksCRUDService.UpdateStatus(status, id);
         }
     }
 }
