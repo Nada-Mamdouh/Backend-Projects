@@ -408,6 +408,9 @@ obj/
 /node_modules
 /wwwroot/node_modules
 
+!**publish/
+!**publish/*.exe
+
 ### VisualStudio ###
 
 # User-specific files

@@ -18,7 +18,8 @@ namespace Task_Tracker.Helpers
 {
     public static class JsonHelper
     {
-        public static readonly string PATH = Path.Combine(AppContext.BaseDirectory, @"..\..\..\data.json");
+        //public static readonly string PATH = Path.Combine(AppContext.BaseDirectory, @"..\..\..\data.json");
+        public static readonly string PATH = Path.Combine(AppContext.BaseDirectory, "data.json");
         private static int Id = 0;
         public static async systemTask UpsertAsync(myTask task,int? id)
         {
