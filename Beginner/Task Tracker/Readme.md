@@ -45,5 +45,5 @@ Each task will show:
 - Download the exe file.
 - Double click it or with cmd in the same location use ".\Task Tracker.exe"
 
--- link for this repo: 
-- (https://github.com/Nada-Mamdouh/Backend-Projects/tree/main/Beginner/Task%20Tracker)
+-- Project link: 
+- https://roadmap.sh/projects/task-tracker
